@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APS 区间控制资源制约量说明</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d9dee8;
+      --panel: #ffffff;
+      --bg: #eef2f7;
+      --blue: #1f6fd1;
+      --green: #2e8b57;
+      --amber: #b7791f;
+      --red: #b83232;
+      --shadow: 0 16px 48px rgba(25, 36, 60, .16);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f7f9fc 0%, #e8edf5 100%);
+      overflow: hidden;
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+    }
+
+    .slide {
+      width: min(1280px, calc(100vw - 44px));
+      aspect-ratio: 16 / 9;
+      max-height: calc(100vh - 44px);
+      background: var(--panel);
+      border: 1px solid rgba(23, 32, 51, .08);
+      box-shadow: var(--shadow);
+      display: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide.active { display: block; }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(31, 111, 209, .07), transparent 36%),
+        linear-gradient(180deg, rgba(46, 139, 87, .05), transparent 42%);
+      pointer-events: none;
+    }
+
+    .frame {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      padding: 48px 58px 54px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    .cover {
+      display: grid;
+      grid-template-columns: 1.02fr .98fr;
+      gap: 38px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      color: var(--blue);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0;
+      margin-bottom: 18px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      font-size: 58px;
+      line-height: 1.08;
+      letter-spacing: 0;
+      max-width: 780px;
+    }
+
+    h2 {
+      font-size: 36px;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      font-size: 22px;
+      line-height: 1.28;
+      letter-spacing: 0;
+    }
+
+    p, li {
+      font-size: 21px;
+      line-height: 1.58;
+      color: #344054;
+    }
+
+    .lead {
+      margin-top: 22px;
+      font-size: 25px;
+      line-height: 1.48;
+      max-width: 760px;
+      color: #344054;
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.82);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 16px;
+      color: #344054;
+      white-space: nowrap;
+    }
+
+    .visual-card {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      box-shadow: 0 8px 20px rgba(31, 111, 209, .08);
+    }
+
+    .screen {
+      border: 1px solid #b8c0cc;
+      background: #fff;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+
+    .screen svg {
+      width: 100%;
+      display: block;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: .92fr 1.08fr;
+      gap: 34px;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .note {
+      border-left: 5px solid var(--blue);
+      background: #f4f8ff;
+      padding: 18px 20px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .note strong {
+      color: var(--blue);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      background: #fff;
+      min-height: 150px;
+    }
+
+    .metric .num {
+      font-size: 42px;
+      line-height: 1;
+      color: var(--blue);
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .metric .label {
+      color: #344054;
+      font-size: 20px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .metric .desc {
+      font-size: 16px;
+      line-height: 1.48;
+      color: var(--muted);
+      margin-top: 9px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .step {
+      min-height: 175px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 18px;
+      position: relative;
+    }
+
+    .step::after {
+      content: "→";
+      position: absolute;
+      right: -17px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--blue);
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .step:last-child::after { content: ""; }
+
+    .step .tag {
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .step p {
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 18px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 13px 15px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #1f2937;
+      background: #f1f5f9;
+      font-weight: 800;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .small-table th,
+    .small-table td {
+      font-size: 17px;
+      padding: 11px 12px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .callout {
+      background: #fffaf0;
+      border: 1px solid #f4d49b;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .callout h3 { color: var(--amber); }
+
+    .warn {
+      background: #fff5f5;
+      border-color: #f0b6b6;
+    }
+
+    .warn h3 { color: var(--red); }
+
+    .ok {
+      background: #f1fbf5;
+      border-color: #badcc8;
+    }
+
+    .ok h3 { color: var(--green); }
+
+    .bullets {
+      margin: 0;
+      padding-left: 24px;
+    }
+
+    .bullets li { margin-bottom: 11px; }
+
+    .nav {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 10;
+      background: rgba(255,255,255,.86);
+      border: 1px solid rgba(23,32,51,.12);
+      border-radius: 999px;
+      padding: 8px 10px;
+      box-shadow: 0 8px 26px rgba(23,32,51,.13);
+      backdrop-filter: blur(10px);
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #172033;
+      width: 38px;
+      height: 34px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    button:hover { border-color: var(--blue); color: var(--blue); }
+
+    .counter {
+      min-width: 64px;
+      text-align: center;
+      color: #344054;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .footer {
+      position: absolute;
+      left: 58px;
+      right: 58px;
+      bottom: 22px;
+      display: flex;
+      justify-content: space-between;
+      color: #98a2b3;
+      font-size: 14px;
+      z-index: 2;
+    }
+
+    @media (max-width: 760px) {
+      body { overflow: auto; }
+      .deck {
+        height: auto;
+        min-height: 100vh;
+        padding: 0;
+      }
+      .slide {
+        width: 100vw;
+        min-height: 100vh;
+        max-height: none;
+        aspect-ratio: auto;
+        box-shadow: none;
+        border: 0;
+      }
+      .frame {
+        padding: 34px 22px 78px;
+      }
+      h1 { font-size: 38px; }
+      h2 { font-size: 28px; }
+      p, li { font-size: 18px; }
+      .cover,
+      .split,
+      .two-col,
+      .metric-grid,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+      .step::after { content: ""; }
+      .footer { left: 22px; right: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" aria-live="polite">
+    <section class="slide active">
+      <div class="frame cover">
+        <div>
+          <div class="eyebrow">APS 区间控制功能说明</div>
+          <h1>用资源制约量控制每天可排工作数</h1>
+          <p class="lead">区间控制的核心，是把“哪些订单算同一类”与“这类资源每天最多排多少笔”绑定起来。系统排产时会按资源分组计数，超过制约量就不再继续生成工作。</p>
+          <div class="pill-row">
+            <span class="pill">资源维度</span>
+            <span class="pill">订单归类</span>
+            <span class="pill">每日上限</span>
+            <span class="pill">尺寸扩展</span>
+          </div>
+        </div>
+        <div class="visual-card">
+          <div class="screen" aria-label="区间控制配置原图复刻">
+            <svg viewBox="0 0 980 330" role="img">
+              <rect width="980" height="330" fill="#f7f7f7"/>
+              <rect x="0" y="0" width="980" height="46" fill="#e6e6e6" stroke="#bfbfbf"/>
+              <rect x="0" y="0" width="88" height="46" fill="#f4f4f4" stroke="#bfbfbf"/>
+              <text x="16" y="29" font-size="18" fill="#2f3b4a">▦ 资源</text>
+              <circle cx="73" cy="23" r="9" fill="#8b8b8b"/>
+              <text x="68" y="28" font-size="14" fill="#fff">×</text>
+              <rect x="0" y="46" width="980" height="34" fill="#dedede" stroke="#bfbfbf"/>
+              <text x="36" y="69" font-size="16" fill="#2f3b4a">✎ 编辑(F5)</text>
+              <text x="118" y="69" font-size="16" fill="#9a9a9a">▣ 保存(F6)</text>
+              <text x="205" y="69" font-size="16" fill="#9a9a9a">↶ 取消(F7)</text>
+              <text x="290" y="69" font-size="16" fill="#2f8f38">⟳ 刷新</text>
+              <text x="382" y="69" font-size="16" fill="#2f3b4a">当前布局:</text>
+              <rect x="452" y="52" width="128" height="22" fill="#fff" stroke="#a9a9a9"/>
+              <text x="462" y="69" font-size="16" fill="#2f3b4a">区间控制1</text>
+              <text x="596" y="69" font-size="16" fill="#2f3b4a">执行自定义操作⌄</text>
+              <rect x="0" y="80" width="980" height="250" fill="#fff"/>
+              <rect x="0" y="80" width="72" height="250" fill="#fbfbfb" stroke="#d0d0d0"/>
+              <rect x="72" y="80" width="270" height="250" fill="#fff" stroke="#d0d0d0"/>
+              <rect x="342" y="80" width="270" height="250" fill="#fff" stroke="#d0d0d0"/>
+              <rect x="612" y="80" width="162" height="250" fill="#fff" stroke="#d0d0d0"/>
+              <rect x="774" y="80" width="206" height="250" fill="#fff" stroke="#d0d0d0"/>
+              <line x1="0" y1="122" x2="980" y2="122" stroke="#d0d0d0"/>
+              <line x1="0" y1="158" x2="980" y2="158" stroke="#d0d0d0"/>
+              <line x1="0" y1="194" x2="980" y2="194" stroke="#d0d0d0"/>
+              <line x1="0" y1="230" x2="980" y2="230" stroke="#d0d0d0"/>
+              <line x1="0" y1="266" x2="980" y2="266" stroke="#d0d0d0"/>
+              <text x="80" y="105" font-size="17" fill="#ff4b00">资源代码</text>
+              <text x="350" y="105" font-size="17" fill="#2f3b4a">资源名称</text>
+              <text x="620" y="105" font-size="17" fill="#2f3b4a">区间控制-资源制约最大量</text>
+              <text x="782" y="105" font-size="17" fill="#2f3b4a">区间控制-关联相同内容</text>
+              <text x="18" y="146" font-size="18" fill="#2b73d2">→</text>
+              <text x="58" y="146" font-size="17" fill="#2f3b4a">1</text>
+              <rect x="72" y="122" width="908" height="36" fill="#1f70d0"/>
+              <text x="80" y="147" font-size="18" fill="#fff">0~10感量叠层温水压组</text>
+              <text x="350" y="147" font-size="18" fill="#fff">0~10感量叠层温水压组</text>
+              <text x="742" y="147" font-size="18" fill="#fff">30</text>
+              <text x="782" y="147" font-size="18" fill="#fff">ME.Operation.Order.Code</text>
+              <text x="58" y="182" font-size="17" fill="#2f3b4a">2</text>
+              <text x="80" y="182" font-size="18" fill="#2f3b4a">10~27感量叠层温水压组</text>
+              <text x="350" y="182" font-size="18" fill="#2f3b4a">10~27感量叠层温水压组</text>
+              <text x="748" y="182" font-size="18" fill="#2f3b4a">12</text>
+              <text x="782" y="182" font-size="18" fill="#2f3b4a">ME.Operation.Order.Code</text>
+              <text x="58" y="218" font-size="17" fill="#2f3b4a">3</text>
+              <text x="80" y="218" font-size="18" fill="#2f3b4a">27~68感量叠层温水压组</text>
+              <text x="350" y="218" font-size="18" fill="#2f3b4a">27~68感量叠层温水压组</text>
+              <text x="756" y="218" font-size="18" fill="#2f3b4a">3</text>
+              <text x="782" y="218" font-size="18" fill="#2f3b4a">ME.Operation.Order.Code</text>
+              <text x="58" y="254" font-size="17" fill="#2f3b4a">4</text>
+              <text x="80" y="254" font-size="18" fill="#2f3b4a">68~120感量叠层温水压组</text>
+              <text x="350" y="254" font-size="18" fill="#2f3b4a">68~120感量叠层温水压组</text>
+              <text x="756" y="254" font-size="18" fill="#2f3b4a">3</text>
+              <text x="782" y="254" font-size="18" fill="#2f3b4a">ME.Operation.Order.Code</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>01</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">先理解一个公式</div>
+          <h2>资源 + 归类字段 + 上限 = 一天能排多少笔</h2>
+          <p class="subtitle">区间控制不是限制总产量，而是限制某个资源组在排程周期内生成的工作笔数。</p>
+        </div>
+        <div class="metric-grid">
+          <div class="metric">
+            <div class="num">1</div>
+            <div class="label">资源代码/名称</div>
+            <div class="desc">决定这条规则管哪个资源，例如“0~10感量叠层温水压组”。</div>
+          </div>
+          <div class="metric">
+            <div class="num">2</div>
+            <div class="label">资源制约最大量</div>
+            <div class="desc">决定一天最多生成几笔工作，例如设置为 30，则当天最多 30 笔。</div>
+          </div>
+          <div class="metric">
+            <div class="num">3</div>
+            <div class="label">关联相同内容</div>
+            <div class="desc">决定哪些工作要合并计数，例如按 ME.Operation.Order.Code 识别订单。</div>
+          </div>
+        </div>
+        <div class="note">
+          <p><strong>用户可以这样理解：</strong>系统排到某一天时，会针对每个资源统计已生成的工作笔数；达到资源制约量后，该资源当天不再继续新增工作。</p>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>02</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">原图配置说明</div>
+          <h2>SDCL0603 系列按感量区间拆分资源制约量</h2>
+        </div>
+        <div class="split">
+          <div class="visual-card">
+            <div class="screen" aria-label="原图区间控制配置">
+              <svg viewBox="0 0 980 330" role="img">
+                <rect width="980" height="330" fill="#f7f7f7"/>
+                <rect x="0" y="0" width="980" height="46" fill="#e6e6e6" stroke="#bfbfbf"/>
+                <text x="16" y="29" font-size="18" fill="#2f3b4a">▦ 资源</text>
+                <rect x="0" y="46" width="980" height="34" fill="#dedede" stroke="#bfbfbf"/>
+                <text x="36" y="69" font-size="16" fill="#2f3b4a">✎ 编辑(F5)</text>
+                <text x="290" y="69" font-size="16" fill="#2f8f38">⟳ 刷新</text>
+                <text x="382" y="69" font-size="16" fill="#2f3b4a">当前布局:</text>
+                <rect x="452" y="52" width="128" height="22" fill="#fff" stroke="#a9a9a9"/>
+                <text x="462" y="69" font-size="16" fill="#2f3b4a">区间控制1</text>
+                <rect x="0" y="80" width="980" height="250" fill="#fff"/>
+                <rect x="0" y="80" width="72" height="250" fill="#fbfbfb" stroke="#d0d0d0"/>
+                <rect x="72" y="80" width="270" height="250" fill="#fff" stroke="#d0d0d0"/>
+                <rect x="342" y="80" width="270" height="250" fill="#fff" stroke="#d0d0d0"/>
+                <rect x="612" y="80" width="162" height="250" fill="#fff" stroke="#d0d0d0"/>
+                <rect x="774" y="80" width="206" height="250" fill="#fff" stroke="#d0d0d0"/>
+                <line x1="0" y1="122" x2="980" y2="122" stroke="#d0d0d0"/>
+                <line x1="0" y1="158" x2="980" y2="158" stroke="#d0d0d0"/>
+                <line x1="0" y1="194" x2="980" y2="194" stroke="#d0d0d0"/>
+                <line x1="0" y1="230" x2="980" y2="230" stroke="#d0d0d0"/>
+                <line x1="0" y1="266" x2="980" y2="266" stroke="#d0d0d0"/>
+                <text x="80" y="105" font-size="17" fill="#ff4b00">资源代码</text>
+                <text x="350" y="105" font-size="17" fill="#2f3b4a">资源名称</text>
+                <text x="620" y="105" font-size="17" fill="#2f3b4a">区间控制-资源制约最大量</text>
+                <text x="782" y="105" font-size="17" fill="#2f3b4a">区间控制-关联相同内容</text>
+                <rect x="72" y="122" width="908" height="36" fill="#1f70d0"/>
+                <text x="80" y="147" font-size="18" fill="#fff">0~10感量叠层温水压组</text>
+                <text x="350" y="147" font-size="18" fill="#fff">0~10感量叠层温水压组</text>
+                <text x="742" y="147" font-size="18" fill="#fff">30</text>
+                <text x="782" y="147" font-size="18" fill="#fff">ME.Operation.Order.Code</text>
+                <text x="80" y="182" font-size="18" fill="#2f3b4a">10~27感量叠层温水压组</text>
+                <text x="350" y="182" font-size="18" fill="#2f3b4a">10~27感量叠层温水压组</text>
+                <text x="748" y="182" font-size="18" fill="#2f3b4a">12</text>
+                <text x="782" y="182" font-size="18" fill="#2f3b4a">ME.Operation.Order.Code</text>
+                <text x="80" y="218" font-size="18" fill="#2f3b4a">27~68感量叠层温水压组</text>
+                <text x="350" y="218" font-size="18" fill="#2f3b4a">27~68感量叠层温水压组</text>
+                <text x="756" y="218" font-size="18" fill="#2f3b4a">3</text>
+                <text x="782" y="218" font-size="18" fill="#2f3b4a">ME.Operation.Order.Code</text>
+                <text x="80" y="254" font-size="18" fill="#2f3b4a">68~120感量叠层温水压组</text>
+                <text x="350" y="254" font-size="18" fill="#2f3b4a">68~120感量叠层温水压组</text>
+                <text x="756" y="254" font-size="18" fill="#2f3b4a">3</text>
+                <text x="782" y="254" font-size="18" fill="#2f3b4a">ME.Operation.Order.Code</text>
+              </svg>
+            </div>
+          </div>
+          <div class="stack">
+            <table>
+              <thead>
+                <tr>
+                  <th>感量区间</th>
+                  <th>每日上限</th>
+                  <th>业务含义</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>0~10</td>
+                  <td>30</td>
+                  <td>低感量资源能力较强，一天最多排 30 笔工作。</td>
+                </tr>
+                <tr>
+                  <td>10~27</td>
+                  <td>12</td>
+                  <td>中段感量能力下降，一天最多排 12 笔。</td>
+                </tr>
+                <tr>
+                  <td>27~68</td>
+                  <td>3</td>
+                  <td>高感量制造约束更强，一天最多排 3 笔。</td>
+                </tr>
+                <tr>
+                  <td>68~120</td>
+                  <td>3</td>
+                  <td>同样按高约束资源处理，一天最多排 3 笔。</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="note">
+              <p>不是所有 SDCL0603 都用同一个上限，而是根据感量段进入不同资源，再由对应资源制约量决定当天排程容量。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>03</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">系统执行逻辑</div>
+          <h2>排程时，系统按资源组逐笔扣减可排数量</h2>
+        </div>
+        <div class="flow">
+          <div class="step">
+            <div class="tag">1</div>
+            <h3>读取订单属性</h3>
+            <p>系统读取系列、尺寸、感量、工序等字段，判断订单应该进入哪个资源组。</p>
+          </div>
+          <div class="step">
+            <div class="tag">2</div>
+            <h3>匹配资源规则</h3>
+            <p>例如 SDCL0603 按感量区间匹配到温水压组资源。</p>
+          </div>
+          <div class="step">
+            <div class="tag">3</div>
+            <h3>检查当天数量</h3>
+            <p>统计该资源当天已生成的工作笔数，并与资源制约最大量比较。</p>
+          </div>
+          <div class="step">
+            <div class="tag">4</div>
+            <h3>决定是否生成</h3>
+            <p>未达上限则生成工作；达到上限后转入后续日期或等待其他排程策略处理。</p>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="callout ok">
+            <h3>适合解决的问题</h3>
+            <p>设备、治具、人力、工艺窗口等限制无法只靠标准产能表达时，可用“工作笔数上限”作为更直观的控制方式。</p>
+          </div>
+          <div class="callout warn">
+            <h3>需要避免的问题</h3>
+            <p>资源拆分过粗会导致不同难度订单互相挤占；资源拆分过细会增加维护量，需要用稳定、可解释的规则来划分。</p>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>04</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">用户新需求</div>
+          <h2>LTCC 系列可以按尺寸设置不同资源制约量</h2>
+          <p class="subtitle">思路与 SDCL0603 类似：SDCL0603 用“感量段”拆资源，LTCC 可以用“尺寸段”拆资源。</p>
+        </div>
+        <div class="split">
+          <div class="stack">
+            <div class="note">
+              <p><strong>建议配置方式：</strong>先定义尺寸分类，再为每个尺寸分类建立资源代码，最后为每个资源设置每日资源制约最大量。</p>
+            </div>
+            <ul class="bullets">
+              <li>小尺寸：工艺节拍快、单日可排笔数较高。</li>
+              <li>中尺寸：按常规能力设置中等资源制约量。</li>
+              <li>大尺寸或特殊尺寸：设备占用、换型或良率风险更高，资源制约量应更低。</li>
+            </ul>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>LTCC 尺寸分组</th>
+                <th>资源示例</th>
+                <th>制约量建议</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>小尺寸</td>
+                <td>LTCC-小尺寸温水压组</td>
+                <td>较高，例如 30</td>
+              </tr>
+              <tr>
+                <td>中尺寸</td>
+                <td>LTCC-中尺寸温水压组</td>
+                <td>中等，例如 12~20</td>
+              </tr>
+              <tr>
+                <td>大尺寸</td>
+                <td>LTCC-大尺寸温水压组</td>
+                <td>较低，例如 3~8</td>
+              </tr>
+              <tr>
+                <td>特殊尺寸</td>
+                <td>LTCC-特殊尺寸温水压组</td>
+                <td>单独评估</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>05</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">落地配置建议</div>
+          <h2>先让规则稳定，再把规则写进资源制约量</h2>
+        </div>
+        <div class="two-col">
+          <div class="callout ok">
+            <h3>推荐配置路径</h3>
+            <ul class="bullets">
+              <li>确认 LTCC 尺寸字段来源，例如规格、型号、长宽厚或产品族字段。</li>
+              <li>定义尺寸分组边界，确保每个订单只能落入一个分组。</li>
+              <li>为每个分组建立对应资源代码和资源名称。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>06</span></div>
+    </section>
+  </main>
+
+  <nav class="nav" aria-label="演示控制">
+    <button type="button" id="prev" aria-label="上一页">‹</button>
+    <div class="counter"><span id="current">1</span>/<span id="total">6</span></div>
+    <button type="button" id="next" aria-label="下一页">›</button>
+  </nav>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const current = document.querySelector("#current");
+    const total = document.querySelector("#total");
+    const prev = document.querySelector("#prev");
+    const next = document.querySelector("#next");
+    let index = 0;
+
+    total.textContent = slides.length;
+
+    function showSlide(nextIndex) {
+      index = (nextIndex + slides.length) % slides.length;
+      slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
+      current.textContent = index + 1;
+    }
+
+    prev.addEventListener("click", () => showSlide(index - 1));
+    next.addEventListener("click", () => showSlide(index + 1));
+
+    window.addEventListener("keydown", (event) => {
+      if (["ArrowRight", "PageDown", " "].includes(event.key)) showSlide(index + 1);
+      if (["ArrowLeft", "PageUp"].includes(event.key)) showSlide(index - 1);
+      if (event.key === "Home") showSlide(0);
+      if (event.key === "End") showSlide(slides.length - 1);
+    });
+  </script>
+</body>
+</html>
