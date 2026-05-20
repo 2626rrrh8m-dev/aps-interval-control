@@ -303,6 +303,76 @@
       padding: 11px 12px;
     }
 
+    .compact-table th,
+    .compact-table td {
+      font-size: 15px;
+      line-height: 1.38;
+      padding: 9px 10px;
+    }
+
+    .compact-table td:nth-child(1),
+    .compact-table td:nth-child(2) {
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .model-block {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 22px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .model-block .badge {
+      color: #fff;
+      background: var(--blue);
+      border-radius: 999px;
+      padding: 6px 12px;
+      width: fit-content;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .logic-box {
+      border-left: 5px solid var(--green);
+      background: #f1fbf5;
+      padding: 16px 18px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .logic-box p {
+      font-size: 18px;
+      line-height: 1.48;
+    }
+
+    .resource-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .resource-tags span {
+      border: 1px solid #c8d7ed;
+      background: #f5f9ff;
+      color: #22324a;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
     .two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -741,11 +811,161 @@
       </div>
       <div class="footer"><span>APS 区间控制</span><span>06</span></div>
     </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">后续模型实现方案</div>
+          <h2>基于系列、识别标准和划分依据建立资源组</h2>
+          <p class="subtitle">后续两个模型不再只按单一尺寸或感量解释，而是把文档中的业务规则固化为“识别字段 → 模糊匹配 → 资源组”的映射逻辑。</p>
+        </div>
+        <div class="model-grid">
+          <div class="model-block">
+            <div class="badge">模型一</div>
+            <h3>黄光、CMC、叠层车载主计划模型</h3>
+            <p>覆盖黄光、CMC、车载高频、车载磁珠、车载热敏等系列。识别标准主要是型号前缀或成本小类，最终拆分为多个资源组。</p>
+            <div class="resource-tags">
+              <span>黄光 7 组</span>
+              <span>CMC 3 组</span>
+              <span>高频 2 组</span>
+              <span>磁珠 9 组</span>
+              <span>热敏 2 组</span>
+            </div>
+          </div>
+          <div class="model-block">
+            <div class="badge">模型二</div>
+            <h3>LTCC 主计划模型</h3>
+            <p>覆盖 LTCC 系列。识别标准为产品类别，通过成本小类中的关键字区分天线和滤波器，再进入不同资源组。</p>
+            <div class="resource-tags">
+              <span>过滤器</span>
+              <span>天线</span>
+              <span>产品类别识别</span>
+              <span>成本小类关键字</span>
+            </div>
+          </div>
+        </div>
+        <div class="logic-box">
+          <p><strong>实现原则：</strong>先用系列判断进入哪个模型，再按识别标准读取字段；代码侧按文档中的列表做模糊匹配，匹配成功后写入对应资源组，用于后续配置资源制约量。</p>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>07</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">模型一：黄光、CMC、叠层车载主计划模型</div>
+          <h2>不同系列采用不同识别标准，拆分为对应资源组</h2>
+        </div>
+        <table class="compact-table">
+          <thead>
+            <tr>
+              <th>序号</th>
+              <th>系列</th>
+              <th>识别标准</th>
+              <th>划分依据</th>
+              <th>实现代码逻辑</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>黄光</td>
+              <td>型号前缀</td>
+              <td>HQ0201 / UHQ0201 / UHQ0402H / HQ0402Q / SDCL0402HQ / SDCL0402H / HQ0402H / SDCL0402Q / UHQ0402S / HQ0603 / SDCL0603</td>
+              <td>按右侧所示根据型号进行模糊匹配，划分为七个资源组。</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>CMC</td>
+              <td>型号前缀</td>
+              <td>SDMM0605U / SDMM0605H / SDMM0806 / SDMM0906</td>
+              <td>按右侧所示根据型号进行模糊匹配，划分为三个资源组。</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>车载高频 0603（黄光）</td>
+              <td>成本小类</td>
+              <td>ASDCL03Q / ASDCL0603</td>
+              <td>根据右侧成本小类划分为两个资源组。</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>车载高频 1005/1608（干法）</td>
+              <td>成本小类</td>
+              <td>ASDCL1005 / ASDCL1608</td>
+              <td>根据右侧成本小类划分为两个资源组。</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>车载磁珠</td>
+              <td>成本小类</td>
+              <td>AZ1005 / AZ15 / AZ1608 / AZ18 / AZ2012 / AZ21 / AZ31 / AZ4030 / AZ41</td>
+              <td>根据右侧成本小类划分为九个资源组。</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>车载热敏</td>
+              <td>成本小类</td>
+              <td>ASDNT1005 / ASDNT1608</td>
+              <td>根据右侧成本小类划分为两个资源组。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>08</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">模型二：LTCC 主计划模型</div>
+          <h2>LTCC 按产品类别识别天线与滤波器资源组</h2>
+          <p class="subtitle">在 LTCC 规则中，系列固定为 LTCC，识别标准改为产品类别；代码逻辑通过成本小类关键字判断资源归属。</p>
+        </div>
+        <div class="split">
+          <table>
+            <thead>
+              <tr>
+                <th>模型</th>
+                <th>系列</th>
+                <th>识别标准</th>
+                <th>划分依据</th>
+                <th>代码逻辑</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LTCC主计划模型</td>
+                <td>LTCC</td>
+                <td>产品类别</td>
+                <td>滤波器 / 天线</td>
+                <td>成本小类中含 <strong>%SLDA%</strong> 为天线，其余为滤波器（如 <strong>%SL%</strong>、<strong>%MFL%</strong>）。</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="stack">
+            <div class="note">
+              <p><strong>落地方式：</strong>订单进入 LTCC 模型后，先读取成本小类；命中 SLDA 关键字则写入“LTCC-天线资源组”，否则写入“LTCC-滤波器资源组”。</p>
+            </div>
+            <div class="callout ok">
+              <h3>资源制约量配置</h3>
+              <p>资源组划分完成后，可继续沿用区间控制功能，为“天线”和“滤波器”分别设置不同的每日资源制约最大量。</p>
+            </div>
+            <div class="callout">
+              <h3>后续扩展</h3>
+              <p>如果 LTCC 后续还需要按尺寸、工艺或设备能力继续细分，可在当前产品类别资源组下再增加二级规则。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>09</span></div>
+    </section>
   </main>
 
   <nav class="nav" aria-label="演示控制">
     <button type="button" id="prev" aria-label="上一页">‹</button>
-    <div class="counter"><span id="current">1</span>/<span id="total">6</span></div>
+    <div class="counter"><span id="current">1</span>/<span id="total">9</span></div>
     <button type="button" id="next" aria-label="下一页">›</button>
   </nav>
 
