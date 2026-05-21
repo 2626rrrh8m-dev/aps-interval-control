@@ -373,6 +373,113 @@
       white-space: nowrap;
     }
 
+    .logic-diagram {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 22px;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .process-map {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 1fr 44px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .process-lane {
+      display: grid;
+      gap: 12px;
+    }
+
+    .process-node {
+      border: 1px solid #c8d7ed;
+      border-radius: 8px;
+      background: #f8fbff;
+      padding: 14px 16px;
+      min-height: 96px;
+      display: grid;
+      align-content: center;
+      gap: 6px;
+    }
+
+    .process-node strong {
+      color: var(--ink);
+      font-size: 19px;
+      line-height: 1.25;
+    }
+
+    .process-node span {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.38;
+    }
+
+    .process-node.highlight {
+      background: #f1fbf5;
+      border-color: #badcc8;
+    }
+
+    .process-arrow {
+      color: var(--blue);
+      font-size: 30px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .vertical-arrow {
+      color: var(--blue);
+      font-size: 24px;
+      font-weight: 900;
+      text-align: center;
+      line-height: 1;
+    }
+
+    .mapping-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 20px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .mapping-card h3 {
+      color: var(--green);
+    }
+
+    .mapping-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      align-items: start;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+
+    .mapping-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .mapping-row b {
+      color: var(--ink);
+      font-size: 17px;
+    }
+
+    .mapping-row span {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
     .two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -961,11 +1068,78 @@
       </div>
       <div class="footer"><span>APS 区间控制</span><span>09</span></div>
     </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">P补充单资源分组逻辑图</div>
+          <h2>先把物料分组结果写入 BASE 料号，再驱动 P 补充单排到不同资源</h2>
+          <p class="subtitle">核心是把“成本小类分组信息”提前沉淀到物料属性中，让排产模型可以直接读取 BASE 料号字段完成资源映射。</p>
+        </div>
+        <div class="logic-diagram">
+          <div class="process-map">
+            <div class="process-lane">
+              <div class="process-node">
+                <strong>1. 读取物料信息</strong>
+                <span>取得物料的成本小类、系列、产品类别等基础属性。</span>
+              </div>
+              <div class="vertical-arrow">↓</div>
+              <div class="process-node">
+                <strong>2. 按成本小类分组</strong>
+                <span>根据规则把物料归入黄光、CMC、车载磁珠、LTCC 天线/滤波器等分组。</span>
+              </div>
+              <div class="vertical-arrow">↓</div>
+              <div class="process-node highlight">
+                <strong>3. 写入 BASE 料号字段</strong>
+                <span>将分组后的标识写回物料 BASE 料号，作为后续排产模型的识别入口。</span>
+              </div>
+            </div>
+            <div class="process-arrow">→</div>
+            <div class="process-lane">
+              <div class="process-node">
+                <strong>4. 生成 P 补充单</strong>
+                <span>P 补充单携带物料属性，模型可读取 BASE 料号中的分组信息。</span>
+              </div>
+              <div class="vertical-arrow">↓</div>
+              <div class="process-node">
+                <strong>5. 进入排产模型</strong>
+                <span>按 BASE 料号匹配资源组，将 P 补充单排到不同资源上。</span>
+              </div>
+              <div class="vertical-arrow">↓</div>
+              <div class="process-node highlight">
+                <strong>6. 配置资源制约量</strong>
+                <span>根据产能目标，为各资源组设置每日可排工单数量上限。</span>
+              </div>
+            </div>
+          </div>
+          <div class="mapping-card">
+            <h3>字段承接关系</h3>
+            <div class="mapping-row">
+              <b>来源字段</b>
+              <span>物料成本小类、系列、产品类别等用于判断分组的属性。</span>
+            </div>
+            <div class="mapping-row">
+              <b>承接字段</b>
+              <span>BASE 料号字段承接分组结果，形成排产模型可识别的统一入口。</span>
+            </div>
+            <div class="mapping-row">
+              <b>排产动作</b>
+              <span>生成 P 补充单后，模型读取 BASE 料号，将需求单分配到对应资源组。</span>
+            </div>
+            <div class="mapping-row">
+              <b>控制目标</b>
+              <span>资源组确定后，再按产能目标配置资源制约量，控制每天可排工单数量。</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>10</span></div>
+    </section>
   </main>
 
   <nav class="nav" aria-label="演示控制">
     <button type="button" id="prev" aria-label="上一页">‹</button>
-    <div class="counter"><span id="current">1</span>/<span id="total">9</span></div>
+    <div class="counter"><span id="current">1</span>/<span id="total">10</span></div>
     <button type="button" id="next" aria-label="下一页">›</button>
   </nav>
 
