@@ -480,6 +480,177 @@
       line-height: 1.45;
     }
 
+    .capacity-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .capacity-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .capacity-card.primary {
+      border-color: #c8d7ed;
+      background: #f8fbff;
+    }
+
+    .capacity-card.precise {
+      border-color: #badcc8;
+      background: #f5fbf7;
+    }
+
+    .scale-line {
+      display: grid;
+      grid-template-columns: 100px 1fr 100px;
+      gap: 12px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .scale-line span {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .scale-bar {
+      height: 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--blue), var(--green));
+      position: relative;
+    }
+
+    .scale-bar::before,
+    .scale-bar::after {
+      content: "";
+      position: absolute;
+      top: -5px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      border: 4px solid var(--blue);
+    }
+
+    .scale-bar::before { left: 18%; }
+    .scale-bar::after {
+      right: 12%;
+      border-color: var(--green);
+    }
+
+    .dimension-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .dimension-item {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 12px;
+      align-items: start;
+      border-top: 1px solid rgba(217, 222, 232, .9);
+      padding-top: 12px;
+    }
+
+    .dimension-item b {
+      color: var(--ink);
+      font-size: 16px;
+    }
+
+    .dimension-item span {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .meeting-board {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 24px;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .topic-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .question-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .question-item {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid #dce6f4;
+      background: #f8fbff;
+      border-radius: 8px;
+    }
+
+    .question-item b {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+    }
+
+    .question-item span {
+      color: var(--body);
+      font-size: 17px;
+      line-height: 1.45;
+    }
+
+    .output-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .output-chip {
+      border-left: 5px solid var(--green);
+      background: #f1fbf5;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 16px;
+    }
+
+    .output-chip strong {
+      display: block;
+      color: var(--green);
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .output-chip span {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
     .two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1135,11 +1306,129 @@
       </div>
       <div class="footer"><span>APS 区间控制</span><span>10</span></div>
     </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">产能资源划分维度</div>
+          <h2>主计划看粗资源，DPS车间排程看真实机台</h2>
+          <p class="subtitle">两层计划使用同一套产能语言，但资源颗粒度不同：主计划解决“每日目标能不能承接”，DPS解决“具体机台如何排”。</p>
+        </div>
+        <div class="scale-line">
+          <span>粗资源</span>
+          <div class="scale-bar"></div>
+          <span>精细资源</span>
+        </div>
+        <div class="capacity-compare">
+          <div class="capacity-card primary">
+            <h3>主计划产能资源划分</h3>
+            <div class="dimension-list">
+              <div class="dimension-item">
+                <b>定位</b>
+                <span>粗资源排产，用于判断需求在计划层面是否能被每日产能目标承接。</span>
+              </div>
+              <div class="dimension-item">
+                <b>颗粒度</b>
+                <span>通常按资源组划分，例如按系列、成本小类、尺寸段、产品类别等聚合。</span>
+              </div>
+              <div class="dimension-item">
+                <b>数据来源</b>
+                <span>来自业务规则、物料属性、产能目标和资源制约量配置。</span>
+              </div>
+              <div class="dimension-item">
+                <b>输出</b>
+                <span>把 P 需求单或补充单分配到粗资源组，控制每天可排工单数量。</span>
+              </div>
+            </div>
+          </div>
+          <div class="capacity-card precise">
+            <h3>DPS车间排程计划资源划分</h3>
+            <div class="dimension-list">
+              <div class="dimension-item">
+                <b>定位</b>
+                <span>车间精细排程，用于决定订单具体落到哪台设备、哪个时间窗口。</span>
+              </div>
+              <div class="dimension-item">
+                <b>颗粒度</b>
+                <span>通常按能够提供产能数据的真实机台维度设置，资源更细、更贴近现场。</span>
+              </div>
+              <div class="dimension-item">
+                <b>数据来源</b>
+                <span>来自机台产能、班次、稼动、工艺约束、换型和现场可用状态。</span>
+              </div>
+              <div class="dimension-item">
+                <b>输出</b>
+                <span>形成车间级的机台排程计划，指导实际生产执行。</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>11</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">会议主题讨论</div>
+          <h2>如何划分粗资源，才能承接每日产能目标</h2>
+          <p class="subtitle">讨论重点不是机台怎么排，而是主计划阶段要用哪些业务维度把需求分到正确的粗资源组。</p>
+        </div>
+        <div class="meeting-board">
+          <div class="topic-card">
+            <h3>核心议题</h3>
+            <div class="question-list">
+              <div class="question-item">
+                <b>1</b>
+                <span>按成本小类划分是否能体现真实产能差异？</span>
+              </div>
+              <div class="question-item">
+                <b>2</b>
+                <span>是否需要叠加系列、尺寸、产品类别、工艺路线等其他维度？</span>
+              </div>
+              <div class="question-item">
+                <b>3</b>
+                <span>每个粗资源组是否都能对应清晰的每日产能目标？</span>
+              </div>
+              <div class="question-item">
+                <b>4</b>
+                <span>资源组划分后，P 需求单如何通过物料属性稳定落入对应资源？</span>
+              </div>
+            </div>
+          </div>
+          <div class="topic-card">
+            <h3>会议期望产出</h3>
+            <div class="output-stack">
+              <div class="output-chip">
+                <strong>粗资源划分规则</strong>
+                <span>明确哪些系列或成本小类需要独立成组，哪些可以合并管理。</span>
+              </div>
+              <div class="output-chip">
+                <strong>物料识别字段</strong>
+                <span>确认用于排产模型识别的字段，例如成本小类、BASE 料号、产品类别等。</span>
+              </div>
+              <div class="output-chip">
+                <strong>每日产能目标</strong>
+                <span>为每个粗资源组确定可执行的产能目标，并转化为资源制约量。</span>
+              </div>
+              <div class="output-chip">
+                <strong>主计划与DPS衔接</strong>
+                <span>主计划先完成粗资源承接，DPS再向真实机台拆解，避免两层计划口径不一致。</span>
+              </div>
+            </div>
+            <div class="note">
+              <p><strong>建议会议结论格式：</strong>资源组名称 + 划分维度 + 识别字段 + 每日产能目标 + 是否需要继续拆到DPS机台。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>12</span></div>
+    </section>
   </main>
 
   <nav class="nav" aria-label="演示控制">
     <button type="button" id="prev" aria-label="上一页">‹</button>
-    <div class="counter"><span id="current">1</span>/<span id="total">10</span></div>
+    <div class="counter"><span id="current">1</span>/<span id="total">12</span></div>
     <button type="button" id="next" aria-label="下一页">›</button>
   </nav>
 
