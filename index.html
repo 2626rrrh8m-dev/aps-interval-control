@@ -651,6 +651,80 @@
       line-height: 1.45;
     }
 
+    .spec-grid {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap: 22px;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .spec-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 20px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .spec-card h3 {
+      color: var(--blue);
+    }
+
+    .spec-card p {
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .mini-flow {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini-flow-item {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid #dce6f4;
+      border-radius: 8px;
+      background: #f8fbff;
+    }
+
+    .mini-flow-item b {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+    }
+
+    .mini-flow-item span {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .field-table th,
+    .field-table td {
+      font-size: 14px;
+      line-height: 1.35;
+      padding: 8px 9px;
+    }
+
+    .field-table td:nth-child(1) {
+      font-weight: 800;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
     .two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1424,11 +1498,144 @@
       </div>
       <div class="footer"><span>APS 区间控制</span><span>12</span></div>
     </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">功能设计：P工单每日产能约束</div>
+          <h2>对生成的 P 工单按粗资源进行每日产能控制</h2>
+          <p class="subtitle">参照功能设计文档的写法，本功能用于在主计划排产阶段读取物料分组信息，将 P 工单落到对应资源组，并按每日产能目标限制可排工单数量。</p>
+        </div>
+        <div class="spec-grid">
+          <div class="spec-card">
+            <h3>产品&模块定义</h3>
+            <p>基于现有排产模型和区间控制能力扩展。P 工单生成后，系统读取物料属性中的 BASE 料号、成本小类、系列或产品类别等分组信息，匹配对应粗资源组，再按照资源制约最大量控制每日可排工单数量。</p>
+            <div class="note">
+              <p><strong>业务目标：</strong>解决 P 工单在主计划阶段超过每日产能目标的问题，让粗资源先承接产能，再由 DPS 车间排程拆到真实机台。</p>
+            </div>
+          </div>
+          <div class="spec-card">
+            <h3>菜单与权限口径</h3>
+            <table class="small-table">
+              <thead>
+                <tr>
+                  <th>模块</th>
+                  <th>菜单</th>
+                  <th>功能点</th>
+                  <th>角色</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>HCMp-生产计划</td>
+                  <td>主计划 / 排产模型 / 区间控制</td>
+                  <td>查询、编辑、保存、刷新、执行排产</td>
+                  <td>租户管理员、系统运维管理员、计划员、计划员组长</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="callout ok">
+              <h3>约束口径</h3>
+              <p>资源制约量表示某资源组单日最多可排 P 工单数量；达到上限后，后续 P 工单不再落入当天该资源组。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>13</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="frame">
+        <div>
+          <div class="eyebrow">功能说明：处理逻辑与字段</div>
+          <h2>P 工单每日产能约束的排产判断逻辑</h2>
+        </div>
+        <div class="spec-grid">
+          <div class="spec-card">
+            <h3>处理流程</h3>
+            <div class="mini-flow">
+              <div class="mini-flow-item">
+                <b>1</b>
+                <span>生成 P 工单后，读取工单对应物料的 BASE 料号、成本小类、系列、产品类别等属性。</span>
+              </div>
+              <div class="mini-flow-item">
+                <b>2</b>
+                <span>根据 BASE 料号中的分组结果或成本小类规则，匹配 P 工单所属粗资源组。</span>
+              </div>
+              <div class="mini-flow-item">
+                <b>3</b>
+                <span>读取该资源组当天的资源制约最大量，并统计当天已排 P 工单数量。</span>
+              </div>
+              <div class="mini-flow-item">
+                <b>4</b>
+                <span>未达到上限则允许排入当天资源；达到上限则不再生成当天工作，按排产策略顺延或进入后续日期。</span>
+              </div>
+            </div>
+          </div>
+          <table class="field-table">
+            <thead>
+              <tr>
+                <th>字段名</th>
+                <th>字段含义</th>
+                <th>只读</th>
+                <th>必输</th>
+                <th>取值逻辑</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>P工单号</td>
+                <td>P补充单生成后的工单编号</td>
+                <td>是</td>
+                <td>是</td>
+                <td>从P工单结果取值</td>
+              </tr>
+              <tr>
+                <td>物料编码</td>
+                <td>P工单对应物料</td>
+                <td>是</td>
+                <td>是</td>
+                <td>从P工单物料取值</td>
+              </tr>
+              <tr>
+                <td>BASE料号</td>
+                <td>承接物料分组结果</td>
+                <td>是</td>
+                <td>是</td>
+                <td>由成本小类/系列/产品类别分组后写入物料属性</td>
+              </tr>
+              <tr>
+                <td>资源组</td>
+                <td>P工单排入的粗资源</td>
+                <td>是</td>
+                <td>是</td>
+                <td>根据BASE料号或分组规则匹配</td>
+              </tr>
+              <tr>
+                <td>资源制约最大量</td>
+                <td>单日可排P工单上限</td>
+                <td>否</td>
+                <td>是</td>
+                <td>根据每日产能目标配置</td>
+              </tr>
+              <tr>
+                <td>已排数量</td>
+                <td>当天资源组已排P工单数量</td>
+                <td>是</td>
+                <td>是</td>
+                <td>排产时按资源组+日期实时统计</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer"><span>APS 区间控制</span><span>14</span></div>
+    </section>
   </main>
 
   <nav class="nav" aria-label="演示控制">
     <button type="button" id="prev" aria-label="上一页">‹</button>
-    <div class="counter"><span id="current">1</span>/<span id="total">12</span></div>
+    <div class="counter"><span id="current">1</span>/<span id="total">14</span></div>
     <button type="button" id="next" aria-label="下一页">›</button>
   </nav>
 
