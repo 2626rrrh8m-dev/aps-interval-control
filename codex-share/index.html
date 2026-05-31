@@ -1,0 +1,1348 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APS顾问如何用 Codex 提升项目与团队效率</title>
+  <meta name="description" content="APS顾问项目实践分享：结合叠层事业部项目，展示如何用 Codex 分担文档输出、方案调研、功能变更协同、上线验收推进与团队知识沉淀。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://2626rrrh8m-dev.github.io/aps-interval-control/codex-share/">
+  <meta property="og:title" content="APS顾问如何用 Codex 提升项目与团队效率">
+  <meta property="og:description" content="从个人效率到团队效率：一个 APS 顾问如何在真实项目中使用 Codex 推动上线验收。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://2626rrrh8m-dev.github.io/aps-interval-control/codex-share/">
+  <meta property="og:image" content="https://2626rrrh8m-dev.github.io/aps-interval-control/codex-share/assets/ops-board.png">
+  <style>
+    :root {
+      --ink: #182230;
+      --text: #344054;
+      --muted: #667085;
+      --line: #d5deea;
+      --paper: #ffffff;
+      --wash: #f3f6fb;
+      --blue: #1f6fd1;
+      --teal: #11836d;
+      --amber: #b7791f;
+      --coral: #c2554b;
+      --violet: #635bff;
+      --radius: 8px;
+      --shadow: 0 26px 70px rgba(24, 34, 48, .16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", "Inter", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(120deg, rgba(31, 111, 209, .11), transparent 34%),
+        linear-gradient(250deg, rgba(17, 131, 109, .09), transparent 35%),
+        #eef3f8;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 3.55rem;
+      line-height: 1.08;
+      letter-spacing: 0;
+      max-width: 850px;
+    }
+
+    h2 {
+      font-size: 2.42rem;
+      line-height: 1.16;
+      letter-spacing: 0;
+      max-width: 960px;
+    }
+
+    h3 {
+      font-size: 1.32rem;
+      line-height: 1.28;
+      letter-spacing: 0;
+    }
+
+    p,
+    li,
+    .text {
+      font-size: 1.05rem;
+      line-height: 1.52;
+      color: var(--text);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.15em;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      width: min(1280px, calc(100vw - 44px));
+      aspect-ratio: 16 / 9;
+      max-height: calc(100vh - 44px);
+      background:
+        linear-gradient(90deg, rgba(31, 111, 209, .075), transparent 34%),
+        linear-gradient(180deg, rgba(17, 131, 109, .045), transparent 42%),
+        var(--paper);
+      border: 1px solid rgba(24, 34, 48, .08);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    .frame {
+      height: 100%;
+      padding: 48px 60px 50px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .frame.tight {
+      gap: 18px;
+    }
+
+    .kicker {
+      color: var(--blue);
+      font-size: .92rem;
+      font-weight: 850;
+      letter-spacing: 0;
+      margin-bottom: 9px;
+    }
+
+    .lead {
+      color: var(--text);
+      font-size: 1.28rem;
+      line-height: 1.45;
+      font-weight: 560;
+      max-width: 890px;
+      margin-top: 18px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .cover {
+      display: grid;
+      grid-template-columns: 1.02fr .98fr;
+      gap: 34px;
+      align-items: center;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .cover-title {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: #344054;
+      font-size: .88rem;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+
+    .chip.blue { background: #eaf3ff; color: #1f5fae; border-color: #bfd7f5; }
+    .chip.teal { background: #e8f7f3; color: #0f725f; border-color: #b9e2d8; }
+    .chip.amber { background: #fff6df; color: #8b5a13; border-color: #ead499; }
+    .chip.coral { background: #fff0ed; color: #9d3c34; border-color: #efc3bd; }
+    .chip.violet { background: #f0efff; color: #544bd7; border-color: #d4d1ff; }
+
+    .collage {
+      height: 100%;
+      min-height: 410px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-content: center;
+    }
+
+    .shot,
+    .panel,
+    .card,
+    .metric,
+    .stage,
+    .quote,
+    .prompt-box,
+    .mini-table,
+    .code-panel,
+    .demo-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .93);
+    }
+
+    .shot {
+      min-height: 156px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(31, 111, 209, .10);
+    }
+
+    .shot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(.96) contrast(1.02);
+    }
+
+    .shot.contain img {
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .shot-label {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      max-width: calc(100% - 20px);
+      padding: 6px 9px;
+      border-radius: 6px;
+      border: 1px solid rgba(214, 222, 234, .92);
+      background: rgba(255, 255, 255, .91);
+      color: #344054;
+      font-size: .78rem;
+      font-weight: 800;
+    }
+
+    .layout-2,
+    .layout-3,
+    .layout-4,
+    .split,
+    .agenda,
+    .timeline,
+    .demo-grid {
+      display: grid;
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .layout-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .layout-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .layout-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .split { grid-template-columns: .96fr 1.04fr; gap: 24px; align-items: stretch; }
+    .split.reverse { grid-template-columns: 1.08fr .92fr; }
+
+    .agenda {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-items: stretch;
+    }
+
+    .agenda-item {
+      min-height: 300px;
+      padding: 22px;
+      border-top: 6px solid var(--blue);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 54px;
+      background: #fff;
+      border-radius: var(--radius);
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .agenda-item:nth-child(2) { border-top-color: var(--teal); }
+    .agenda-item:nth-child(3) { border-top-color: var(--amber); }
+    .agenda-item:nth-child(4) { border-top-color: var(--coral); }
+
+    .agenda-num {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: rgba(24, 34, 48, .16);
+      line-height: 1;
+    }
+
+    .card,
+    .panel,
+    .metric,
+    .stage,
+    .prompt-box,
+    .demo-card {
+      padding: 19px;
+      min-height: 0;
+    }
+
+    .card.accent-blue,
+    .metric.accent-blue,
+    .panel.accent-blue { border-top: 5px solid var(--blue); }
+    .card.accent-teal,
+    .metric.accent-teal,
+    .panel.accent-teal { border-top: 5px solid var(--teal); }
+    .card.accent-amber,
+    .metric.accent-amber,
+    .panel.accent-amber { border-top: 5px solid var(--amber); }
+    .card.accent-coral,
+    .metric.accent-coral,
+    .panel.accent-coral { border-top: 5px solid var(--coral); }
+    .card.accent-violet,
+    .metric.accent-violet,
+    .panel.accent-violet { border-top: 5px solid var(--violet); }
+
+    .card p,
+    .panel p,
+    .stage p,
+    .demo-card p {
+      margin-top: 10px;
+    }
+
+    .metric {
+      min-height: 172px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .metric strong {
+      color: var(--blue);
+      font-size: 2.45rem;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .metric span {
+      color: #344054;
+      font-size: 1rem;
+      line-height: 1.42;
+      font-weight: 760;
+    }
+
+    .compare {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #fff;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .compare-row {
+      display: grid;
+      grid-template-columns: .7fr 1.08fr 1.22fr;
+      border-bottom: 1px solid var(--line);
+      min-height: 80px;
+      align-items: stretch;
+    }
+
+    .compare-row:last-child {
+      border-bottom: 0;
+    }
+
+    .compare-row.header {
+      min-height: 54px;
+      background: #eef4fb;
+      font-weight: 880;
+      color: #233044;
+    }
+
+    .compare-cell {
+      padding: 14px 17px;
+      border-right: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      font-size: .98rem;
+      line-height: 1.4;
+      color: #344054;
+    }
+
+    .compare-cell:last-child {
+      border-right: 0;
+    }
+
+    .compare-cell strong {
+      color: var(--ink);
+    }
+
+    .timeline {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      align-items: stretch;
+    }
+
+    .stage {
+      min-height: 205px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stage::before {
+      content: attr(data-step);
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .stage:nth-child(2)::before { background: var(--blue); }
+    .stage:nth-child(3)::before { background: var(--teal); }
+    .stage:nth-child(4)::before { background: var(--amber); }
+    .stage:nth-child(5)::before { background: var(--coral); }
+
+    .stage::after {
+      content: "";
+      position: absolute;
+      right: -28px;
+      bottom: -28px;
+      width: 86px;
+      height: 86px;
+      border: 14px solid rgba(31, 111, 209, .07);
+      border-radius: 50%;
+    }
+
+    .visual {
+      min-height: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #f8fafc;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .visual.contain img {
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .caption {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      max-width: calc(100% - 28px);
+      padding: 8px 10px;
+      border: 1px solid rgba(214, 222, 234, .9);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, .91);
+      color: #344054;
+      font-size: .82rem;
+      font-weight: 820;
+    }
+
+    .quote {
+      padding: 24px;
+      display: grid;
+      gap: 13px;
+      align-content: center;
+      background:
+        linear-gradient(135deg, rgba(31, 111, 209, .08), transparent 62%),
+        #fff;
+    }
+
+    .quote .line {
+      font-size: 1.82rem;
+      line-height: 1.32;
+      color: #1d2939;
+      font-weight: 880;
+    }
+
+    .mini-table {
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .mini-row {
+      display: grid;
+      grid-template-columns: .9fr 1.38fr 1fr;
+      min-height: 54px;
+      border-bottom: 1px solid var(--line);
+      align-items: stretch;
+    }
+
+    .mini-row:last-child {
+      border-bottom: 0;
+    }
+
+    .mini-row.header {
+      background: #eef4fb;
+      font-weight: 880;
+      color: #233044;
+    }
+
+    .mini-row span {
+      display: flex;
+      align-items: center;
+      padding: 11px 14px;
+      border-right: 1px solid var(--line);
+      color: #344054;
+      font-size: .9rem;
+      line-height: 1.35;
+    }
+
+    .mini-row.header span {
+      color: #233044;
+    }
+
+    .mini-row span:last-child {
+      border-right: 0;
+    }
+
+    .prompt-box {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      background: #111827;
+      color: #dbeafe;
+      border-color: rgba(17, 24, 39, .72);
+    }
+
+    .prompt-box p,
+    .prompt-box li {
+      color: #dbeafe;
+      font-size: .92rem;
+    }
+
+    .prompt-box strong {
+      color: #93c5fd;
+    }
+
+    .code-panel {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      padding: 20px;
+      overflow: hidden;
+      white-space: pre-wrap;
+      background: #111827;
+      color: #dbeafe;
+      font: 650 .92rem / 1.52 "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    .code-panel .key { color: #93c5fd; }
+    .code-panel .warn { color: #fbbf24; }
+    .code-panel .ok { color: #86efac; }
+    .code-panel .bad { color: #fca5a5; }
+
+    .demo-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .demo-card {
+      border-top: 5px solid var(--blue);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .demo-card:nth-child(2) { border-top-color: var(--teal); }
+    .demo-card:nth-child(3) { border-top-color: var(--amber); }
+    .demo-card:nth-child(4) { border-top-color: var(--coral); }
+
+    .demo-card .demo-num {
+      color: rgba(24, 34, 48, .18);
+      font-size: 2.2rem;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .footer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 8px;
+      z-index: 2;
+      padding: 0 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #667085;
+      font-size: .82rem;
+      font-weight: 780;
+    }
+
+    .progress {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 5px;
+      background: rgba(24, 34, 48, .08);
+      z-index: 5;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--blue), var(--teal), var(--amber));
+      transition: width .2s ease;
+    }
+
+    .controls {
+      position: fixed;
+      right: 20px;
+      bottom: 18px;
+      z-index: 8;
+      display: flex;
+      gap: 8px;
+    }
+
+    .control {
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(24, 34, 48, .16);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .94);
+      color: var(--ink);
+      box-shadow: 0 8px 20px rgba(26, 37, 58, .10);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
+    .control:hover {
+      color: var(--blue);
+      border-color: rgba(31, 111, 209, .52);
+    }
+
+    .slide-num {
+      width: auto;
+      min-width: 64px;
+      padding: 0 10px;
+      font-size: .86rem;
+      color: #344054;
+    }
+
+    .talk-track {
+      position: fixed;
+      right: 20px;
+      bottom: 72px;
+      width: min(430px, calc(100vw - 40px));
+      max-height: 48vh;
+      overflow: auto;
+      z-index: 7;
+      display: none;
+      padding: 18px 18px 16px;
+      border: 1px solid rgba(24, 34, 48, .13);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .96);
+      box-shadow: 0 18px 50px rgba(26, 37, 58, .18);
+    }
+
+    .talk-track.open {
+      display: block;
+    }
+
+    .talk-track h3 {
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+
+    .talk-track p {
+      font-size: .92rem;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        overflow: auto;
+      }
+
+      h1 { font-size: 2.2rem; }
+      h2 { font-size: 1.72rem; }
+      h3 { font-size: 1.12rem; }
+      p, li, .text { font-size: .96rem; }
+
+      .deck {
+        min-height: 100vh;
+        height: auto;
+        padding: 14px;
+      }
+
+      .slide {
+        width: calc(100vw - 28px);
+        min-height: calc((100vw - 28px) * .5625);
+        max-height: none;
+        aspect-ratio: auto;
+      }
+
+      .frame {
+        height: auto;
+        min-height: calc((100vw - 28px) * .5625);
+        padding: 30px 24px 34px;
+      }
+
+      .cover,
+      .layout-2,
+      .layout-3,
+      .layout-4,
+      .split,
+      .split.reverse,
+      .agenda,
+      .timeline,
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .collage,
+      .visual {
+        min-height: 300px;
+      }
+
+      .compare-row,
+      .mini-row {
+        grid-template-columns: 1fr;
+      }
+
+      .compare-cell,
+      .mini-row span {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .compare-cell:last-child,
+      .mini-row span:last-child {
+        border-bottom: 0;
+      }
+
+      .footer {
+        position: static;
+        padding: 0;
+        margin-top: auto;
+      }
+
+      .controls {
+        position: static;
+        justify-content: center;
+        margin: 0 auto 18px;
+      }
+
+      .progress {
+        position: static;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        overflow: visible;
+      }
+
+      .deck {
+        display: block;
+        width: auto;
+        height: auto;
+        padding: 0;
+      }
+
+      .slide,
+      .slide.active {
+        display: block;
+        width: 100vw;
+        height: 56.25vw;
+        max-height: none;
+        box-shadow: none;
+        border: 0;
+        page-break-after: always;
+      }
+
+      .controls,
+      .talk-track,
+      .progress {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck">
+    <section class="slide active" data-note="开场要把 Codex 讲成顾问身边的第二工作台，而不是一个单纯聊天工具。你负责判断、取舍和客户沟通，Codex 帮你把资料整理、文档生产、网页制作和重复性验证提速。">
+      <div class="frame">
+        <div class="cover">
+          <div class="cover-title">
+            <div class="kicker">APS 顾问项目实践分享</div>
+            <h1>把 Codex 用成 APS 项目的第二工作台</h1>
+            <p class="lead">结合叠层事业部项目，分享我如何用 Codex 分担文档输出、方案调研、系统开发协同与团队知识沉淀。</p>
+            <div class="chip-row">
+              <span class="chip blue">项目推进</span>
+              <span class="chip teal">上线验收</span>
+              <span class="chip amber">功能变更</span>
+              <span class="chip coral">团队效率</span>
+            </div>
+          </div>
+          <div class="collage" aria-label="项目产出截图组合">
+            <div class="shot contain">
+              <img src="assets/acceptance-report.png" alt="验收合格报告截图">
+              <div class="shot-label">验收标准与报告</div>
+            </div>
+            <div class="shot contain">
+              <img src="assets/meeting-minutes.png" alt="会议纪要截图">
+              <div class="shot-label">会议纪要</div>
+            </div>
+            <div class="shot contain">
+              <img src="assets/ops-board.png" alt="问题看板截图">
+              <div class="shot-label">问题闭环</div>
+            </div>
+            <div class="shot contain">
+              <img src="assets/confirmation-email.png" alt="上线邮件截图">
+              <div class="shot-label">上线邮件</div>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span>Codex × APS 项目应用</span><span>01</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-note="这一页只讲路线，不急着展开。目录本身要让听众看到：这不是工具说明书，而是一条从顾问困境到项目案例再到团队方法的分享路径。">
+      <div class="frame tight">
+        <div>
+          <div class="kicker">分享目录</div>
+          <h2>从“一个顾问怎么用”讲到“一个团队怎么复用”</h2>
+        </div>
+        <div class="agenda">
+          <div class="agenda-item">
+            <div class="agenda-num">01</div>
+            <div>
+              <h3>Codex 到底不同在哪里</h3>
+              <p>不只回答问题，而是在本机工作区里读文件、改文件、生成网页和检查结果。</p>
+            </div>
+          </div>
+          <div class="agenda-item">
+            <div class="agenda-num">02</div>
+            <div>
+              <h3>实施顾问为什么需要它</h3>
+              <p>项目周期短、客户要求高、顾问身兼多职，交付质量容易被碎片化工作拖住。</p>
+            </div>
+          </div>
+          <div class="agenda-item">
+            <div class="agenda-num">03</div>
+            <div>
+              <h3>叠层事业部项目实操案例</h3>
+              <p>围绕延期项目的上线验收，拆成建议、标准、实现、确认四个真实动作。</p>
+            </div>
+          </div>
+          <div class="agenda-item">
+            <div class="agenda-num">04</div>
+            <div>
+              <h3>从个人效率到团队效率</h3>
+              <p>把一次产出沉淀为模板、检查清单、知识库和协作规范。</p>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span>目录</span><span>02</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-note="这里重点对比 Codex 和普通聊天型 AI。不是说 ChatGPT 或豆包没有价值，而是 Codex 更适合项目执行：它能结合文件、目录、命令和本地验证，把建议变成可交付成果。">
+      <div class="frame tight">
+        <div>
+          <div class="kicker">Codex 与聊天型 AI 的区别</div>
+          <h2>它更像一个能进入项目工作区的执行型助手</h2>
+        </div>
+        <div class="compare" role="table" aria-label="Codex 与 ChatGPT 豆包对比">
+          <div class="compare-row header" role="row">
+            <div class="compare-cell" role="columnheader">维度</div>
+            <div class="compare-cell" role="columnheader">ChatGPT / 豆包常见用法</div>
+            <div class="compare-cell" role="columnheader">Codex 在 APS 项目里的价值</div>
+          </div>
+          <div class="compare-row" role="row">
+            <div class="compare-cell"><strong>工作方式</strong></div>
+            <div class="compare-cell">主要通过对话给建议、写段落、解释概念。</div>
+            <div class="compare-cell">能围绕本地文件执行任务：读大纲、生成网页、检查截图、修改文档或代码。</div>
+          </div>
+          <div class="compare-row" role="row">
+            <div class="compare-cell"><strong>输出载体</strong></div>
+            <div class="compare-cell">常见输出是文字，后续仍要人工搬到 Word、Excel、网页或邮件。</div>
+            <div class="compare-cell">可以直接生成交付物初稿：会议纪要、验收标准、问题清单、网页 PPT、SQL 草案。</div>
+          </div>
+          <div class="compare-row" role="row">
+            <div class="compare-cell"><strong>项目上下文</strong></div>
+            <div class="compare-cell">上下文主要靠复制粘贴，容易遗漏文件关系和历史版本。</div>
+            <div class="compare-cell">可结合工作区内的截图、文档、表格、接口报文和脚本，形成连续项目记忆。</div>
+          </div>
+          <div class="compare-row" role="row">
+            <div class="compare-cell"><strong>顾问边界</strong></div>
+            <div class="compare-cell">适合头脑风暴和语言润色，但不直接替代交付流程。</div>
+            <div class="compare-cell">适合承担结构化初稿和重复劳动，最终业务判断仍由顾问把关。</div>
+          </div>
+        </div>
+        <div class="footer"><span>工具定位</span><span>03</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-note="这一页把实施顾问的现实压力讲出来。你可以结合自己的经历说：最难的不是单项能力，而是在短周期里同时做好项目管理、方案调研、系统开发协同和对外文档。">
+      <div class="frame">
+        <div>
+          <div class="kicker">实施顾问当前困境</div>
+          <h2>周期短、要求高、角色多，很多质量问题来自精力被拉散</h2>
+        </div>
+        <div class="layout-3">
+          <div class="metric accent-blue">
+            <strong>短</strong>
+            <span>项目周期压缩，调研、配置、开发、测试、上线往往并行推进。</span>
+          </div>
+          <div class="metric accent-teal">
+            <strong>多</strong>
+            <span>顾问同时承担项目管理、方案调研、客户沟通、系统开发协同和文档输出。</span>
+          </div>
+          <div class="metric accent-coral">
+            <strong>高</strong>
+            <span>客户对进度、文档、问题闭环和上线质量要求越来越高。</span>
+          </div>
+        </div>
+        <div class="quote">
+          <p class="line">真正需要分担的，不是顾问判断，而是文档输出、信息整理、方案初稿和可校验的重复劳动。</p>
+          <p>Codex 的价值就在这里：先把碎片变成结构，再把结构变成可审阅交付物。</p>
+        </div>
+        <div class="footer"><span>顾问压力</span><span>04</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-note="这里进入叠层事业部案例。不要把延期原因讲得太细，重点讲你作为顾问如何配合项目经理把项目从延期困境推进到上线验收路径。">
+      <div class="frame tight">
+        <div>
+          <div class="kicker">叠层事业部案例背景</div>
+          <h2>项目延期后，顾问如何配合项目经理推动上线验收</h2>
+          <p class="lead">我的任务不是替代项目经理，而是把 APS 专业判断、交付材料和推进动作组织起来，让项目重新进入可验收路径。</p>
+        </div>
+        <div class="timeline">
+          <div class="stage" data-step="1">
+            <h3>共识问题</h3>
+            <p>梳理延期背景、关键风险、客户关注点和上线阻塞项。</p>
+          </div>
+          <div class="stage" data-step="2">
+            <h3>建立标准</h3>
+            <p>输出上线验收标准，开会确认边界、责任和关闭口径。</p>
+          </div>
+          <div class="stage" data-step="3">
+            <h3>逐条满足</h3>
+            <p>围绕验收项推进配置、数据、功能变更和问题关闭。</p>
+          </div>
+          <div class="stage" data-step="4">
+            <h3>确认达成</h3>
+            <p>实现后召开确认会议，形成会议纪要和验收结论。</p>
+          </div>
+          <div class="stage" data-step="5">
+            <h3>推动验收</h3>
+            <p>输出上线邮件、支持安排和后续优化计划，推动签收。</p>
+          </div>
+        </div>
+        <div class="footer"><span>案例主线</span><span>05</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-note="第一类实操是向 Codex 请教如何与项目经理协同。这里强调 Codex 不是给一句泛泛建议，而是把顾问能做什么拆成风险清单、推进议程、分工建议和沟通话术。">
+      <div class="frame">
+        <div>
+          <div class="kicker">实操一：请教 Codex 与项目经理协同</div>
+          <h2>先把延期项目从“情绪压力”拆成“可推进动作”</h2>
+        </div>
+        <div class="split">
+          <div class="prompt-box">
+            <h3>我给 Codex 的上下文</h3>
+            <ul>
+              <li>项目当前延期，客户关注上线验收。</li>
+              <li>我是 APS 顾问，需要配合项目经理推动上线。</li>
+              <li>请从顾问角色给出建议：风险、会议、交付物、责任分工、下一步动作。</li>
+            </ul>
+            <p><strong>输出目标：</strong>形成一份可和项目经理讨论的推进建议。</p>
+          </div>
+          <div class="layout-2">
+            <div class="card accent-blue">
+              <h3>风险拆解</h3>
+              <p>把延期原因、客户疑虑、数据质量、功能变更、验收口径拆成可讨论事项。</p>
+            </div>
+            <div class="card accent-teal">
+              <h3>顾问分工</h3>
+              <p>明确顾问负责标准、方案、验证材料和业务解释，项目经理负责节奏与承诺。</p>
+            </div>
+            <div class="card accent-amber">
+              <h3>会议议程</h3>
+              <p>准备项目推进会、验收标准确认会、实现后验收确认会。</p>
+            </div>
+            <div class="card accent-coral">
+              <h3>沟通话术</h3>
+              <p>把“延期解释”转成“当前状态、解决动作、验收路径、后续优化”的表达。</p>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span>项目推进建议</span><span>06</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-note="第二类实操是形成成熟的验收标准和会议纪要。你可以展示 Codex 如何从零散要求生成标准项，再把会议确认内容整理成正式纪要。">
+      <div class="frame">
+        <div>
+          <div class="kicker">实操二：输出上线验收标准与会议纪要</div>
+          <h2>把客户关注点变成“可确认、可追踪、可签收”的验收口径</h2>
+        </div>
+        <div class="split reverse">
+          <div class="visual contain">
+            <img src="assets/acceptance-report.png" alt="APS 项目初步验收合格报告截图">
+            <div class="caption">示例：Codex 协助整理的验收报告/标准材料</div>
+          </div>
+          <div class="layout-2">
+            <div class="card accent-blue">
+              <h3>验收标准</h3>
+              <p>把上线目标拆成数据、功能、流程、报表、权限、运维支持等标准项。</p>
+            </div>
+            <div class="card accent-teal">
+              <h3>会议确认</h3>
+              <p>形成议程、待确认问题、结论表述和责任人，让会议围绕标准推进。</p>
+            </div>
+            <div class="card accent-amber">
+              <h3>纪要沉淀</h3>
+              <p>将讨论结果整理为会议纪要：背景、结论、遗留项、时间计划和关闭条件。</p>
+            </div>
+            <div class="card accent-coral">
+              <h3>顾问校验</h3>
+              <p>我负责检查 APS 口径、客户表达、边界承诺和后续优化是否准确。</p>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span>验收标准</span><span>07</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-note="第三类实操是根据验收标准逐条满足实现。这里用资源组产能限制每日投产量举例：这是试运行阶段的重要变更，Codex 可以帮忙把业务问题转成设计文档和开发计划，但上线前必须由顾问、研发、DBA 和业务共同确认。">
+      <div class="frame">
+        <div>
+          <div class="kicker">实操三：将验收项转成功能设计与开发计划</div>
+          <h2>资源组产能限制每日投产量：从业务诉求到可开发方案</h2>
+        </div>
+        <div class="split">
+          <div class="code-panel" aria-label="功能设计文档示意">
+<span class="warn">业务变更</span>
+资源组产能限制每日投产量
+试运行重大变更，上线后继续优化
+
+<span class="key">Codex 帮我生成</span>
+1. 功能背景与目标
+2. 业务规则与适用范围
+3. 数据字段与维护方式
+4. 排产计算影响点
+5. 开发任务拆解
+6. 测试样例与验收清单
+
+<span class="bad">必须人工把关</span>
+产能口径、例外场景、上线窗口、
+回滚方案、客户确认边界
+          </div>
+          <div class="mini-table">
+            <div class="mini-row header"><span>交付物</span><span>Codex 承担</span><span>顾问把关</span></div>
+            <div class="mini-row"><span>功能设计文档</span><span>结构、章节、字段、规则描述初稿</span><span>业务口径和客户表达</span></div>
+            <div class="mini-row"><span>开发计划</span><span>任务拆解、优先级、依赖、风险点</span><span>资源安排和上线节奏</span></div>
+            <div class="mini-row"><span>测试清单</span><span>正常、边界、异常、回归场景</span><span>真实订单与现场口径</span></div>
+            <div class="mini-row"><span>上线说明</span><span>变更影响、注意事项、后续优化项</span><span>承诺边界和签收口径</span></div>
+          </div>
+        </div>
+        <div class="footer"><span>功能变更</span><span>08</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-note="第四类实操是实现完成后的验收推动。Codex 熟悉整套上线流程后，可以继续生成确认会议纪要、上线邮件和支持安排，让项目经理和客户看到明确闭环。">
+      <div class="frame">
+        <div>
+          <div class="kicker">实操四：实现完成后推动验收</div>
+          <h2>把“我们做完了”变成“标准已确认、资料已归档、后续有安排”</h2>
+        </div>
+        <div class="split reverse">
+          <div class="layout-2">
+            <div class="visual contain">
+              <img src="assets/confirmation-email.png" alt="运维支持确认邮件截图">
+              <div class="caption">示例：上线/运维确认邮件</div>
+            </div>
+            <div class="visual contain">
+              <img src="assets/ops-support-doc.png" alt="上线运维支持确认文档截图">
+              <div class="caption">示例：上线运维支持确认文档</div>
+            </div>
+          </div>
+          <div class="layout-2">
+            <div class="card accent-blue">
+              <h3>确认会</h3>
+              <p>逐项确认验收标准达成情况，记录未关闭项和后续优化计划。</p>
+            </div>
+            <div class="card accent-teal">
+              <h3>上线邮件</h3>
+              <p>统一表达上线范围、支持安排、确认结论、风险提醒和待办责任。</p>
+            </div>
+            <div class="card accent-amber">
+              <h3>签收材料</h3>
+              <p>把验收标准、会议纪要、问题清单、支持文档作为一组材料归档。</p>
+            </div>
+            <div class="card accent-coral">
+              <h3>后续优化</h3>
+              <p>把试运行重大变更标记为上线后优化项，避免把范围无限扩大。</p>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span>验收推动</span><span>09</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-note="这一页是实机演示的提示页。你可以按照四个 demo 来讲：先搭上下文，再让 Codex 生成标准，再生成设计与计划，最后生成上线邮件。每个 demo 都要强调输入、产出和人工校验。">
+      <div class="frame tight">
+        <div>
+          <div class="kicker">实机演示设计</div>
+          <h2>四个具体页面，把“怎么做到”现场演示出来</h2>
+        </div>
+        <div class="demo-grid">
+          <div class="demo-card">
+            <div class="demo-num">01</div>
+            <div>
+              <h3>项目推进建议</h3>
+              <p>输入延期背景和顾问角色，让 Codex 生成与项目经理协同的风险和动作清单。</p>
+            </div>
+          </div>
+          <div class="demo-card">
+            <div class="demo-num">02</div>
+            <div>
+              <h3>验收标准与纪要</h3>
+              <p>输入客户关注点，生成上线验收标准，再整理会议纪要和待确认项。</p>
+            </div>
+          </div>
+          <div class="demo-card">
+            <div class="demo-num">03</div>
+            <div>
+              <h3>功能设计与计划</h3>
+              <p>用资源组产能限制场景，生成设计文档、开发任务和测试清单。</p>
+            </div>
+          </div>
+          <div class="demo-card">
+            <div class="demo-num">04</div>
+            <div>
+              <h3>上线邮件与沉淀</h3>
+              <p>基于已确认材料，生成上线邮件、运维支持说明和知识库条目。</p>
+            </div>
+          </div>
+        </div>
+        <div class="quote">
+          <p class="line">演示重点不是“它会写”，而是“顾问如何给上下文、如何验收结果、如何沉淀复用”。</p>
+        </div>
+        <div class="footer"><span>实机演示</span><span>10</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-note="这里把效率提升分成三层，避免只讲个人省时间。个人效率是入口，项目节奏更稳是中间层，团队资产可复用才是最终价值。">
+      <div class="frame">
+        <div>
+          <div class="kicker">效率提升在哪里</div>
+          <h2>从个人减负，到项目节奏，再到团队复用</h2>
+        </div>
+        <div class="layout-3">
+          <div class="metric accent-blue">
+            <strong>个人</strong>
+            <span>减少空白页时间，把精力放回业务判断、客户沟通和关键风险。</span>
+          </div>
+          <div class="metric accent-teal">
+            <strong>项目</strong>
+            <span>验收标准、会议纪要、问题闭环和上线邮件形成统一推进口径。</span>
+          </div>
+          <div class="metric accent-amber">
+            <strong>团队</strong>
+            <span>模板、检查清单、话术和案例库可复用，新项目启动更快。</span>
+          </div>
+        </div>
+        <div class="split">
+          <div class="visual contain">
+            <img src="assets/ops-board.png" alt="问题跟踪清单看板截图">
+            <div class="caption">示例：问题跟踪从个人记录变成团队看板</div>
+          </div>
+          <div class="visual contain">
+            <img src="assets/supply-check-plan.png" alt="供给数据核查计划截图">
+            <div class="caption">示例：核查方法从临时排查变成标准模板</div>
+          </div>
+        </div>
+        <div class="footer"><span>效率层级</span><span>11</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-note="这一页回应大纲里的情绪变化：原来会担心 AI 时代打工人如何自处，但真正把 AI 用进 APS 工作后，会发现焦虑会变成方法。核心是人机分工：AI 扩展结构化能力，人保留判断、责任和现场经验。">
+      <div class="frame">
+        <div>
+          <div class="kicker">Codex 的优势与我的感受</div>
+          <h2>AI 没有替代 APS 顾问，它改变了顾问组织工作的方式</h2>
+        </div>
+        <div class="layout-3">
+          <div class="card accent-blue">
+            <h3>能执行</h3>
+            <p>不止提供答案，还能把答案落到文件、网页、表格、脚本和本地检查里。</p>
+          </div>
+          <div class="card accent-teal">
+            <h3>懂上下文</h3>
+            <p>可以围绕同一项目连续处理大纲、截图、文档、日志和交付物。</p>
+          </div>
+          <div class="card accent-amber">
+            <h3>可沉淀</h3>
+            <p>每一次产出都能进一步变成模板、检查清单、FAQ 或知识库。</p>
+          </div>
+        </div>
+        <div class="quote">
+          <p class="line">我的焦虑感被缓解，是因为我看到 AI 可以帮顾问从低价值重复劳动里出来，重新聚焦专业判断和项目推动。</p>
+          <p>关键不是“会不会被替代”，而是“能不能把它训练成自己的工作方法”。</p>
+        </div>
+        <div class="footer"><span>工具优势</span><span>12</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-note="结尾给出非常具体的行动建议。听众会后不需要马上做大系统，可以从三个小入口开始：当前项目问题表、一个验收标准模板、一条知识资产。">
+      <div class="frame">
+        <div>
+          <div class="kicker">会后行动建议</div>
+          <h2>先从三个最容易见效的入口开始</h2>
+        </div>
+        <div class="layout-3">
+          <div class="card accent-blue">
+            <h3>做一张项目问题表</h3>
+            <p>把当前问题转为标准字段：等级、类型、责任人、处理状态、验证结论、关闭说明。</p>
+          </div>
+          <div class="card accent-teal">
+            <h3>做一份验收标准模板</h3>
+            <p>按数据、功能、流程、报表、权限、运维支持拆分，形成项目通用结构。</p>
+          </div>
+          <div class="card accent-amber">
+            <h3>沉淀一条知识资产</h3>
+            <p>把最近解决过的一个问题整理成场景、原因、处理步骤、复用话术和注意事项。</p>
+          </div>
+        </div>
+        <div class="quote">
+          <p class="line">Codex 不能替代 APS 顾问，但它能放大顾问的结构化能力、交付速度和团队沉淀能力。</p>
+          <p class="lead">让经验从个人能力，变成团队能力。</p>
+        </div>
+        <div class="footer"><span>收束</span><span>13</span></div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="talk-track" id="talkTrack" aria-live="polite">
+    <h3>讲稿提示</h3>
+    <p id="noteText"></p>
+  </aside>
+
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+  <nav class="controls" aria-label="幻灯片控制">
+    <button class="control" id="prevBtn" title="上一页" type="button">‹</button>
+    <button class="control slide-num" id="counter" title="当前页" type="button">1/13</button>
+    <button class="control" id="nextBtn" title="下一页" type="button">›</button>
+    <button class="control" id="notesBtn" title="讲稿提示" type="button">≡</button>
+    <button class="control" id="printBtn" title="打印或导出 PDF" type="button">⎙</button>
+  </nav>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const progressBar = document.getElementById("progressBar");
+    const counter = document.getElementById("counter");
+    const noteText = document.getElementById("noteText");
+    const talkTrack = document.getElementById("talkTrack");
+    let index = 0;
+
+    function clamp(value) {
+      return Math.max(0, Math.min(slides.length - 1, value));
+    }
+
+    function showSlide(nextIndex) {
+      index = clamp(nextIndex);
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle("active", slideIndex === index);
+      });
+      counter.textContent = `${index + 1}/${slides.length}`;
+      progressBar.style.width = `${((index + 1) / slides.length) * 100}%`;
+      noteText.textContent = slides[index].dataset.note || "";
+      window.location.hash = `s${index + 1}`;
+    }
+
+    document.getElementById("prevBtn").addEventListener("click", () => showSlide(index - 1));
+    document.getElementById("nextBtn").addEventListener("click", () => showSlide(index + 1));
+    document.getElementById("notesBtn").addEventListener("click", () => talkTrack.classList.toggle("open"));
+    document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault();
+        showSlide(index + 1);
+      }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        event.preventDefault();
+        showSlide(index - 1);
+      }
+      if (event.key.toLowerCase() === "n") {
+        talkTrack.classList.toggle("open");
+      }
+      if (event.key === "Home") showSlide(0);
+      if (event.key === "End") showSlide(slides.length - 1);
+    });
+
+    function hashIndex() {
+      const hashMatch = window.location.hash.match(/^#s(\d+)$/);
+      return hashMatch ? Number(hashMatch[1]) - 1 : 0;
+    }
+
+    window.addEventListener("hashchange", () => {
+      const nextIndex = clamp(hashIndex());
+      if (nextIndex !== index) showSlide(nextIndex);
+    });
+
+    showSlide(hashIndex());
+  </script>
+</body>
+</html>
