@@ -366,123 +366,6 @@
     .phase:nth-child(3) { border-top-color: var(--amber); }
     .phase:nth-child(4) { border-top-color: var(--green); }
 
-    .compare {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      flex: 1;
-      min-height: 0;
-    }
-
-    .lane {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: #fff;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      min-height: 0;
-    }
-
-    .lane-title {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .pill {
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 13px;
-      font-weight: 850;
-      color: #fff;
-      background: var(--blue);
-      white-space: nowrap;
-    }
-
-    .pill.warn { background: var(--amber); }
-    .pill.good { background: var(--green); }
-
-    .mini-flow {
-      display: grid;
-      gap: 9px;
-    }
-
-    .mini-step {
-      display: grid;
-      grid-template-columns: 30px 1fr;
-      gap: 10px;
-      align-items: start;
-      border: 1px solid #e3e9f2;
-      border-radius: 8px;
-      padding: 10px;
-      background: #fbfdff;
-    }
-
-    .mini-step span {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      color: #fff;
-      background: var(--blue);
-      font-size: 13px;
-      font-weight: 850;
-    }
-
-    .mini-step p {
-      font-size: clamp(14px, 1.04vw, 17px);
-      line-height: 1.38;
-    }
-
-    .runbook {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 14px;
-      flex: 1;
-      min-height: 0;
-    }
-
-    .runbook-card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: #fff;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .runbook-card strong {
-      color: var(--blue);
-      font-size: clamp(24px, 2.4vw, 38px);
-      line-height: 1;
-    }
-
-    .output-box {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: #172033;
-      color: #fff;
-      padding: 18px;
-      font-size: clamp(17px, 1.45vw, 22px);
-      line-height: 1.5;
-      font-weight: 780;
-    }
-
-    .output-box span {
-      color: #9fb7d9;
-      display: block;
-      font-size: 13px;
-      margin-bottom: 8px;
-      font-weight: 850;
-    }
-
     .footer {
       position: absolute;
       left: clamp(34px, 4.8vw, 68px);
@@ -552,8 +435,6 @@
       .grid-2,
       .grid-3,
       .grid-4,
-      .compare,
-      .runbook,
       .flow,
       .timeline {
         grid-template-columns: 1fr;
@@ -595,7 +476,6 @@
               <span class="chip">资源测算</span>
               <span class="chip">风险控制</span>
               <span class="chip">上线机制</span>
-              <span class="chip">自动化补充</span>
             </div>
           </div>
           <div class="signal-board">
@@ -810,136 +690,23 @@
     <section class="slide">
       <div class="frame">
         <div>
-          <div class="kicker">07 供给质量等级机制</div>
-          <h2>供给质量等级补充：从人工往返处理，改为定时任务自动闭环</h2>
-        </div>
-        <div class="compare">
-          <div class="lane">
-            <div class="lane-title">
-              <h3>当前人工流程</h3>
-              <span class="pill warn">多次等待</span>
-            </div>
-            <div class="mini-flow">
-              <div class="mini-step"><span>1</span><p>首次点击“运算”，系统校验供给质量等级缺失数据。</p></div>
-              <div class="mini-step"><span>2</span><p>导出缺失数据，发送给 EBS 顾问处理。</p></div>
-              <div class="mini-step"><span>3</span><p>等待顾问脚本更新 EBS，再反馈群消息。</p></div>
-              <div class="mini-step"><span>4</span><p>重新执行接口与运算，若仍报错继续人工联系补充。</p></div>
-            </div>
-          </div>
-          <div class="lane">
-            <div class="lane-title">
-              <h3>目标自动化流程</h3>
-              <span class="pill good">自动闭环</span>
-            </div>
-            <div class="mini-flow">
-              <div class="mini-step"><span>1</span><p>IT 定时任务扫描缺失供给质量等级数据。</p></div>
-              <div class="mini-step"><span>2</span><p>自动执行质量等级匹配与补充脚本，并同步到系统。</p></div>
-              <div class="mini-step"><span>3</span><p>自动输出未匹配原因、责任部门和待补数据清单。</p></div>
-              <div class="mini-step"><span>4</span><p>运算时只拦截真正未闭环的数据，减少反复人工重跑。</p></div>
-            </div>
-          </div>
-        </div>
-        <div class="footer"><span>把人工往返变成系统每日自动巡检与修复</span><div class="progress"></div></div>
-      </div>
-    </section>
-
-    <section class="slide">
-      <div class="frame">
-        <div>
-          <div class="kicker">08 自动化任务设计</div>
-          <h2>IT 定时任务承担三件事：补质量等级、回写结果、输出原因</h2>
-        </div>
-        <div class="runbook">
-          <div class="runbook-card">
-            <strong>01</strong>
-            <h3>扫描缺失</h3>
-            <p>按固定频率识别 APS 供给数据中质量等级为空、质量归属无法判断或接口同步后仍缺失的数据。</p>
-          </div>
-          <div class="runbook-card">
-            <strong>02</strong>
-            <h3>自动补充</h3>
-            <p>调用供给质量等级更新脚本，按库存客户、T 型号、质量等级表等规则自动匹配最高可用质量等级。</p>
-          </div>
-          <div class="runbook-card">
-            <strong>03</strong>
-            <h3>同步校验</h3>
-            <p>完成更新后重新执行接口同步或校验逻辑，确认补充后的数据可被主计划运算正常识别。</p>
-          </div>
-          <div class="runbook-card">
-            <strong>04</strong>
-            <h3>原因输出</h3>
-            <p>对脚本未匹配的数据输出缺失原因汇总，例如客户未维护、型号未匹配、质量等级表缺失或多值冲突。</p>
-          </div>
-          <div class="runbook-card">
-            <strong>05</strong>
-            <h3>责任分派</h3>
-            <p>按原因类型映射责任部门，形成业务可处理的补数清单，而不是只提示“脚本未匹配”。</p>
-          </div>
-          <div class="runbook-card">
-            <strong>06</strong>
-            <h3>任务留痕</h3>
-            <p>保留每次运行的开始时间、结束时间、处理数量、失败数量、失败原因和重跑结果，便于运维追踪。</p>
-          </div>
-        </div>
-        <div class="footer"><span>自动化不是只跑脚本，还要把处理结果讲清楚</span><div class="progress"></div></div>
-      </div>
-    </section>
-
-    <section class="slide">
-      <div class="frame tight">
-        <div>
-          <div class="kicker">09 异常闭环机制</div>
-          <h2>人工只处理“系统无法判断”的数据，其他动作由任务自动完成</h2>
-        </div>
-        <div class="split">
-          <div class="card">
-            <span class="tag">系统提示建议</span>
-            <div class="output-box"><span>自动化任务输出</span>供给质量等级自动补充完成：已匹配 128 条，未匹配 7 条。请根据原因清单联系对应部门补充数据。</div>
-            <p class="muted" style="margin-top: 14px;">比当前“脚本未匹配出质量等级缺失原因汇总”更进一步：不仅提示未匹配，还输出为什么未匹配、谁来处理、处理后是否需要重跑。</p>
-          </div>
-          <div class="grid-2">
-            <div class="card">
-              <h3>可自动闭环</h3>
-              <p>已有质量等级表、客户和型号可唯一匹配的数据，由定时任务自动补充并回写。</p>
-            </div>
-            <div class="card">
-              <h3>需人工补数</h3>
-              <p>客户、型号、质量归属、启用状态等基础资料缺失时，输出责任部门补充清单。</p>
-            </div>
-            <div class="card">
-              <h3>需规则确认</h3>
-              <p>同一客户同一型号存在多个质量等级或规则冲突时，进入规则确认池。</p>
-            </div>
-            <div class="card">
-              <h3>需运维关注</h3>
-              <p>接口执行失败、脚本报错或同步结果不一致时，自动进入运维问题跟踪。</p>
-            </div>
-          </div>
-        </div>
-        <div class="footer"><span>把异常从“群里等反馈”变成“清单化、责任化、可复跑”</span><div class="progress"></div></div>
-      </div>
-    </section>
-
-    <section class="slide">
-      <div class="frame">
-        <div>
-          <div class="kicker">10 汇报结论</div>
-          <h2>推进原则：以稳定样板牵引全系列上线，以自动化降低运维消耗</h2>
+          <div class="kicker">07 汇报结论</div>
+          <h2>推进原则：以稳定样板牵引全系列上线</h2>
         </div>
         <div class="grid-2">
           <div class="card">
-            <span class="tag">上线推进</span>
+            <span class="tag">短期目标</span>
             <h3>先扩大可稳定运行的模型/系列范围</h3>
             <p>围绕 SDCL0603 的经验，选取下一批模型/系列进行小批量验证，确保计划员和平台组能按日常节奏完成 APS 下单。</p>
           </div>
           <div class="card">
-            <span class="tag">自动化支撑</span>
-            <h3>供给质量等级补充由 IT 定时任务处理</h3>
-            <p>将缺失扫描、质量等级补充、原因输出、结果留痕和异常清单自动化，人工只处理系统无法判断的基础资料问题。</p>
+            <span class="tag">长期目标</span>
+            <h3>形成全系列上线推动说明</h3>
+            <p>把数据准备、问题分类、运行标准、运维支持和复制节奏沉淀为图文并茂的正式说明，支撑叠层事业部主计划全面推广。</p>
           </div>
         </div>
-        <p class="lead">建议本次汇报重点争取：确认分批推进策略、明确下一批上线范围、锁定业务与平台资源，并推动供给质量等级补充机制纳入 IT 定时任务。</p>
-        <div class="footer"><span>让上线从一次性冲刺变成可复制、可自动支撑的运营能力</span><div class="progress"></div></div>
+        <p class="lead">建议本次汇报重点争取：确认分批推进策略、明确下一批上线范围、锁定业务与平台资源，并要求每批上线形成可复用交付物。</p>
+        <div class="footer"><span>让上线从一次性冲刺变成可复制的运营能力</span><div class="progress"></div></div>
       </div>
     </section>
   </main>
